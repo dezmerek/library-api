@@ -8,5 +8,5 @@ class User:
         return {
             "username": user["username"],
             "email": user["email"],
-            # Dodaj więcej pól użytkownika jakie są potrzebne
+            "role": user.get("role", "standard")  
         }

@@ -21,4 +21,3 @@ def retrieve_user(username):
         return jsonify(user), 200
     else:
         return jsonify({"msg": "Użytkownik nie znaleziony"}), 404
-
