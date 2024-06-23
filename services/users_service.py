@@ -1,12 +1,12 @@
-
 from models.user import User
+from roles import ROLES
 
-def add_user(data):
+def add_user(data, current_role):
     required_fields = ["username", "email", "password", "role"]
     if not all(field in data for field in required_fields):
         return {"msg": "Brakuje wymaganych pól"}, 400
 
-    if data["role"] not in ["admin", "librarian", "user", "guest"]:
+    if data["role"] not in ROLES:
         return {"msg": "Nieprawidłowa rola użytkownika"}, 400
 
     existing_user = User.collection.find_one({"username": data["username"]})
@@ -14,7 +14,7 @@ def add_user(data):
         return {"msg": "Użytkownik o podanej nazwie już istnieje"}, 400
 
     User.collection.insert_one(data)
-    return {"msg": "Użytkownik dodany"}
+    return {"msg": "Użytkownik dodany"}, 201
 
 def get_users():
     users = list(User.collection.find({}, {'_id': 0}))

@@ -19,18 +19,15 @@ def authenticate():
         else:
             return jsonify({"msg": "Nieprawidłowe dane uwierzytelniające"}), 401
 
-def role_required(role):
-    def decorator(func):
-        @wraps(func)
-        def decorated_function(*args, **kwargs):
-            if g.user['role'] != role:
-                abort(403) 
-            return func(*args, **kwargs)
-        return decorated_function
-    return decorator
+from db import db
+from roles import ROLES
+
+@app.route('/')
+def home():
+    return "Welcome to the Library API!"
 
 app.register_blueprint(books_bp, url_prefix='/books')
-app.register_blueprint(users_bp, url_prefix='/api/users') 
+app.register_blueprint(users_bp, url_prefix='/api/users')
 app.register_blueprint(loans_bp, url_prefix='/api')
 
 if __name__ == '__main__':
