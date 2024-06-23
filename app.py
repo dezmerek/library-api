@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, g, request, abort
+from flask import Flask, jsonify, g, request
 from config import Config
 from routes.books import books_bp
 from routes.users import users_bp
 from routes.loans import loans_bp
+from routes.auth import auth_bp
 from functools import wraps
 from db import db
 
@@ -18,9 +19,8 @@ def authenticate():
             g.user = user
         else:
             return jsonify({"msg": "Nieprawidłowe dane uwierzytelniające"}), 401
-
-from db import db
-from roles import ROLES
+    else:
+        g.user = None 
 
 @app.route('/')
 def home():
@@ -29,6 +29,7 @@ def home():
 app.register_blueprint(books_bp, url_prefix='/books')
 app.register_blueprint(users_bp, url_prefix='/api/users')
 app.register_blueprint(loans_bp, url_prefix='/api')
+app.register_blueprint(auth_bp, url_prefix='/auth')
 
 if __name__ == '__main__':
     app.run(debug=True)

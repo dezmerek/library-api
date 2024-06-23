@@ -1,7 +1,8 @@
-from flask import Blueprint, jsonify, request, g, abort
+from flask import Blueprint, jsonify, request, g
 from functools import wraps
 from db import db
 from models.user import User
+from services.users_service import add_user, get_users, get_user_by_username
 from roles import ROLES
 
 users_bp = Blueprint('users', __name__, url_prefix='/api/users')
@@ -20,7 +21,8 @@ def role_required(role):
 @role_required('admin') 
 def create_user():
     data = request.get_json()
-    response = add_user(data)
+    current_role = g.user['role'] if 'user' in g else None
+    response = add_user(data, current_role)
     return jsonify(response), response[1] if isinstance(response, tuple) else 201
 
 @users_bp.route('/', methods=['GET'])
@@ -37,26 +39,3 @@ def retrieve_user(username):
         return jsonify(user), 200
     else:
         return jsonify({"msg": "Użytkownik nie znaleziony"}), 404
-
-def add_user(data):
-    required_fields = ["username", "email", "password", "role"]
-    if not all(field in data for field in required_fields):
-        return {"msg": "Brakuje wymaganych pól"}, 400
-
-    if data["role"] not in ROLES:
-        return {"msg": "Nieprawidłowa rola użytkownika"}, 400
-
-    existing_user = User.collection.find_one({"username": data["username"]})
-    if existing_user:
-        return {"msg": "Użytkownik o podanej nazwie już istnieje"}, 400
-
-    User.collection.insert_one(data)
-    return {"msg": "Użytkownik dodany"}
-
-def get_users():
-    users = list(User.collection.find({}, {'_id': 0}))
-    return users
-
-def get_user_by_username(username):
-    user = User.collection.find_one({'username': username}, {'_id': 0})
-    return user if user else None

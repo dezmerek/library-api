@@ -6,6 +6,9 @@ def add_user(data, current_role):
     if not all(field in data for field in required_fields):
         return {"msg": "Brakuje wymaganych pól"}, 400
 
+    if current_role not in ["admin", "user"]:
+        return {"msg": "Nie masz wystarczających uprawnień do wykonania tej operacji"}, 403
+
     if data["role"] not in ROLES:
         return {"msg": "Nieprawidłowa rola użytkownika"}, 400
 
