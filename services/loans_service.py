@@ -1,8 +1,9 @@
+
 from models.loan import Loan
-from datetime import datetime
 from models.book import Book
 from models.user import User
-from bson import ObjectId 
+from bson import ObjectId
+from datetime import datetime, timedelta
 
 def borrow_book(user_id, book_id):
     try:
@@ -14,9 +15,12 @@ def borrow_book(user_id, book_id):
         if not user:
             return {"msg": "Użytkownik o podanym ID nie istnieje"}, 404
 
-        active_loan = Loan.collection.find_one({"book_id": ObjectId(book_id), "returned": False})
-        if active_loan:
-            return {"msg": "Książka jest już wypożyczona"}, 400
+        if user['role'] not in ['admin', 'librarian']:
+            return {"msg": "Nie masz wystarczających uprawnień do wykonania tej operacji"}, 403
+
+        existing_loan = Loan.collection.find_one({"book_id": ObjectId(book_id), "$or": [{"returned": False}, {"returned": None}]})
+        if existing_loan:
+            return {"msg": "Książka jest już zarezerwowana lub wypożyczona"}, 400
 
         loan_data = {
             "user_id": ObjectId(user_id),
@@ -30,27 +34,49 @@ def borrow_book(user_id, book_id):
     except Exception as e:
         return {"msg": f"Błąd podczas wypożyczania książki: {str(e)}"}, 500
 
-def return_book(user_id, book_id):
+def reserve_book(user_id, book_id):
     try:
-        query = {
-            "user_id": ObjectId(user_id),
-            "book_id": ObjectId(book_id),
-            "returned": False
-        }
-        loan = Loan.collection.find_one(query)
-        if not loan:
-            return {"msg": "Nie znaleziono aktywnego wypożyczenia do zwrócenia"}, 404
+        book = Book.collection.find_one({"_id": ObjectId(book_id)})
+        if not book:
+            return {"msg": "Książka o podanym ID nie istnieje"}, 404
 
-        update = {
-            "$set": {
-                "returned": True,
-                "return_date": datetime.now()
-            }
-        }
-        result = Loan.collection.update_one(query, update)
-        if result.modified_count:
-            return {"msg": "Książka została zwrócona"}
-        else:
-            return {"msg": "Błąd podczas zwracania książki"}
+        user = User.collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return {"msg": "Użytkownik o podanym ID nie istnieje"}, 404
+
+        if user['role'] not in ['admin', 'librarian', 'user']:
+            return {"msg": "Nie masz wystarczających uprawnień do wykonania tej operacji"}, 403
+
+        existing_loan = Loan.collection.find_one({"book_id": ObjectId(book_id), "$or": [{"returned": False}, {"returned": None}]})
+        if existing_loan:
+            return {"msg": "Książka jest już zarezerwowana lub wypożyczona"}, 400
+
+
+        return {"msg": "Książka została zarezerwowana"}
     except Exception as e:
-        return {"msg": f"Błąd podczas zwracania książki: {str(e)}"}, 500
+        return {"msg": f"Błąd podczas rezerwacji książki: {str(e)}"}, 500
+
+def cancel_reservation(user_id, book_id):
+    try:
+        book = Book.collection.find_one({"_id": ObjectId(book_id)})
+        if not book:
+            return {"msg": "Książka o podanym ID nie istnieje"}, 404
+
+        user = User.collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return {"msg": "Użytkownik o podanym ID nie istnieje"}, 404
+
+        if user['role'] not in ['admin', 'librarian', 'user']:
+            return {"msg": "Nie masz wystarczających uprawnień do wykonania tej operacji"}, 403
+
+        existing_loan = Loan.collection.find_one({"book_id": ObjectId(book_id), "user_id": ObjectId(user_id), "returned": False})
+        if not existing_loan:
+            return {"msg": "Nie znaleziono aktywnej rezerwacji do anulowania"}, 404
+
+        result = Loan.collection.delete_one({"_id": existing_loan["_id"]})
+        if result.deleted_count:
+            return {"msg": "Rezerwacja książki została anulowana"}
+        else:
+            return {"msg": "Błąd podczas anulowania rezerwacji książki"}
+    except Exception as e:
+        return {"msg": f"Błąd podczas anulowania rezerwacji książki: {str(e)}"}, 500

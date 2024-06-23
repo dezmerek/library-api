@@ -12,5 +12,6 @@ class Book:
             "year": book["year"],
             "ISBN": book["ISBN"],
             "genre": book["genre"],
-            "publisher": book["publisher"]
+            "publisher": book["publisher"],
+            "status": book.get("status", "available")  
         }
