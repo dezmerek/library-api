@@ -1,24 +1,15 @@
 from flask import Flask
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 from config import Config
+from routes.books import books_bp
+from routes.users import users_bp
+from routes.loans import loans_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Initialize MongoDB client
-client = MongoClient(app.config['MONGO_URI'], server_api=ServerApi('1'))
-
-# Test the connection to MongoDB
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(f"Error connecting to MongoDB: {e}")
-
-@app.route('/')
-def home():
-    return "Hello, Flask with MongoDB!"
+app.register_blueprint(books_bp, url_prefix='/books')
+app.register_blueprint(users_bp, url_prefix='/api/users')
+app.register_blueprint(loans_bp, url_prefix='/api/loans')
 
 if __name__ == '__main__':
     app.run(debug=True)
