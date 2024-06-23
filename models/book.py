@@ -6,6 +6,7 @@ class Book:
     @staticmethod
     def to_json(book):
         return {
+            "book_id": str(book["_id"]), 
             "title": book["title"],
             "author": book["author"],
             "year": book["year"],
