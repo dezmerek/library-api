@@ -4,7 +4,7 @@ from routes.books import books_bp
 from routes.users import users_bp
 from routes.loans import loans_bp
 from routes.reservations import reservations_bp
-from routes.statistics_routes import statistics_bp
+from routes.statistics import statistics_bp
 from routes.auth import auth_bp
 from functools import wraps
 from db import db
