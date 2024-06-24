@@ -1,6 +1,7 @@
 from db import db
 from roles import ROLES
 
+
 class User:
     collection = db.users
 

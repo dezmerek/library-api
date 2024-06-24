@@ -1,6 +1,7 @@
 from models.user import User
 from roles import ROLES
 
+
 def add_user(data, current_role):
     required_fields = ["username", "email", "password", "role"]
     if not all(field in data for field in required_fields):
@@ -19,9 +20,11 @@ def add_user(data, current_role):
     User.collection.insert_one(data)
     return {"msg": "Użytkownik dodany"}, 201
 
+
 def get_users():
     users = list(User.collection.find({}, {'_id': 0}))
     return users
+
 
 def get_user_by_username(username):
     user = User.collection.find_one({'username': username}, {'_id': 0})
