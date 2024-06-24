@@ -4,6 +4,7 @@ from routes.books import books_bp
 from routes.users import users_bp
 from routes.loans import loans_bp
 from routes.reservations import reservations_bp
+from routes.statistics_routes import statistics_bp
 from routes.auth import auth_bp
 from functools import wraps
 from db import db
@@ -36,6 +37,7 @@ app.register_blueprint(users_bp, url_prefix="/api/users")
 app.register_blueprint(loans_bp, url_prefix="/api/loans")
 app.register_blueprint(reservations_bp, url_prefix="/api/reservations")
 app.register_blueprint(auth_bp, url_prefix="/auth")
+app.register_blueprint(statistics_bp, url_prefix='/api/statistics')
 
 if __name__ == "__main__":
     app.run(debug=True)
