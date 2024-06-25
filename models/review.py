@@ -33,3 +33,8 @@ class Review:
     def get_by_book(cls, book_id):
         reviews = cls.collection.find({"book_id": ObjectId(book_id)})
         return [cls.to_json(review) for review in reviews]
+
+    @classmethod
+    def get_all(cls):
+        reviews = cls.collection.find()
+        return [cls.to_json(review) for review in reviews]

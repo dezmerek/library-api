@@ -7,7 +7,6 @@ from routes.reservations import reservations_bp
 from routes.statistics import statistics_bp
 from routes.reviews import review_bp
 from routes.auth import auth_bp
-from functools import wraps
 from db import db
 
 app = Flask(__name__)
@@ -40,7 +39,6 @@ app.register_blueprint(reservations_bp, url_prefix="/api/reservations")
 app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(statistics_bp, url_prefix='/api/statistics')
 app.register_blueprint(review_bp, url_prefix='/api')
-
 
 if __name__ == "__main__":
     app.run(debug=True)
