@@ -1,5 +1,5 @@
 from db import db
-from datetime import datetime
+from datetime import datetime, UTC
 from bson.objectid import ObjectId
 
 
@@ -24,7 +24,7 @@ class Review:
             "user_id": ObjectId(user_id),
             "rating": rating,
             "comment": comment,
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(UTC)
         }
         cls.collection.insert_one(review)
         return cls.to_json(review)
