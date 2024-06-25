@@ -2,16 +2,15 @@ import pytest
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+import certifi
 
 load_dotenv()
 
-
 @pytest.fixture(scope="session")
 def mongo_client():
-    client = MongoClient(os.getenv("MONGO_URI"))
+    client = MongoClient(os.getenv("MONGO_URI"), tlsCAFile=certifi.where())
     yield client
     client.close()
-
 
 @pytest.fixture(scope="session")
 def test_db(mongo_client):
