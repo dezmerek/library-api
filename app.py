@@ -41,5 +41,6 @@ app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(statistics_bp, url_prefix='/api/statistics')
 app.register_blueprint(review_bp, url_prefix='/api')
 
+
 if __name__ == "__main__":
     app.run(debug=True)

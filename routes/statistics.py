@@ -7,7 +7,7 @@ from bson import ObjectId
 from db import db
 from functools import wraps
 
-statistics_bp = Blueprint('statistics', __name__, url_prefix='/api/statistics')
+statistics_bp = Blueprint('statistics', __name__)
 
 
 def admin_required(f):
@@ -20,14 +20,26 @@ def admin_required(f):
     return decorated_function
 
 
-@statistics_bp.route('/active_reservations_count', methods=['GET'])
+@statistics_bp.route('/', methods=['GET'])
 @admin_required
-def get_active_reservations_count():
+def get_statistics():
     try:
-        count = Reservation.collection.count_documents({"status": "active"})
-        return jsonify({"active_reservations_count": count}), 200
+        total_books = Book.collection.count_documents({})
+        total_users = User.collection.count_documents({})
+        active_loans = Loan.collection.count_documents({"returned": False})
+        active_reservations = Reservation.collection.count_documents(
+            {"status": "active"})
+
+        statistics = {
+            "total_books": total_books,
+            "total_users": total_users,
+            "active_loans": active_loans,
+            "active_reservations": active_reservations
+        }
+
+        return jsonify(statistics), 200
     except Exception as e:
-        return jsonify({"error": f"Failed to retrieve active reservations count: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to retrieve statistics: {str(e)}"}), 500
 
 
 @statistics_bp.route('/most_reserved_books', methods=['GET'])
