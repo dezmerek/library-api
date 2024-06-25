@@ -77,7 +77,7 @@ pip install -r requirements.txt
 Use the following command to run library-api:
 
 ```
-python main.py
+python app.py
 ```
 
 ### Tests
